@@ -5,6 +5,7 @@ import retrofit2.Call
 import retrofit2.http.Body
 import retrofit2.http.GET
 import retrofit2.http.POST
+import retrofit2.http.Path
 
 interface ClienteService {
 
@@ -13,5 +14,8 @@ interface ClienteService {
 
     @GET("clientes")
     fun listarTodos(): Call<List<Cliente>>
+
+    @GET("clientes/{id}")
+    fun buscarPorId(@Path("id") codigo: Long): Call<List<Cliente>>
 
 }
