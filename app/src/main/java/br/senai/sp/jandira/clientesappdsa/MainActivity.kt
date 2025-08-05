@@ -13,6 +13,7 @@ import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.tooling.preview.Preview
 import br.senai.sp.jandira.clientesappdsa.model.Cliente
+import br.senai.sp.jandira.clientesappdsa.screens.cliente.ListaDeClientes
 import br.senai.sp.jandira.clientesappdsa.service.Conexao
 import br.senai.sp.jandira.clientesappdsa.ui.theme.ClientesAppDSATheme
 import kotlinx.coroutines.Dispatchers
@@ -28,16 +29,18 @@ class MainActivity : ComponentActivity() {
         setContent {
             ClientesAppDSATheme {
 
-                val cliente = Cliente(
-                    id = null,
-                    nome = "Cadastro da Isabelly",
-                    email = "email@teste.com"
-                )
+                ListaDeClientes()
 
-                val conexao = Conexao().getClienteService()
-                LaunchedEffect(Dispatchers.IO) {
-                    conexao.cadastrarCliente(cliente).await()
-                }
+//                val cliente = Cliente(
+//                    id = null,
+//                    nome = "Cadastro da Isabelly",
+//                    email = "email@teste.com"
+//                )
+//
+//                val conexao = Conexao().getClienteService()
+//                LaunchedEffect(Dispatchers.IO) {
+//                    conexao.cadastrarCliente(cliente).await()
+//                }
 //                val requisicao = conexao.cadastrarCliente(cliente)
 //
 //                requisicao.enqueue(object : Callback<Cliente>{
