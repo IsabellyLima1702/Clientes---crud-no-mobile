@@ -6,6 +6,7 @@ import retrofit2.http.Body
 import retrofit2.http.DELETE
 import retrofit2.http.GET
 import retrofit2.http.POST
+import retrofit2.http.PUT
 import retrofit2.http.Path
 
 interface ClienteService {
@@ -17,9 +18,12 @@ interface ClienteService {
     fun listarTodos(): Call<List<Cliente>>
 
     @GET("clientes/{id}")
-    fun buscarPorId(@Path("id") codigo: Long): Call<List<Cliente>>
+    fun buscarPorId(@Path("id") codigo: Long): Call<Cliente>
 
-    @DELETE("clientes/{id}")
-    fun deletarPorId(@Path("id") codigo: Long): Call<List<Cliente>>
+    @PUT("clientes")
+    fun atualizar(@Body cliente: Cliente): Call<Cliente>
+
+    @DELETE("clientes")
+    fun excluir(@Body cliente: Cliente): Unit
 
 }
