@@ -17,7 +17,6 @@ import androidx.compose.material.icons.filled.Delete
 import androidx.compose.material.icons.filled.Person
 import androidx.compose.material.icons.filled.Warning
 import androidx.compose.material3.AlertDialog
-import androidx.compose.material3.Button
 import androidx.compose.material3.Card
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
@@ -33,21 +32,24 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import androidx.navigation.NavHostController
 import br.senai.sp.jandira.clientesappdsa.model.Cliente
+import br.senai.sp.jandira.clientesappdsa.service.ClienteService
 import br.senai.sp.jandira.clientesappdsa.service.Conexao
 import br.senai.sp.jandira.clientesappdsa.ui.theme.ClientesAppDSATheme
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.GlobalScope
+import kotlinx.coroutines.launch
 import retrofit2.await
 
 @Composable
-fun Conteudo(paddingValues: PaddingValues){
+fun Conteudo(paddingValues: PaddingValues, controleNavegacao: NavHostController?){
 
     val clienteApi = Conexao().getClienteService()
 
     var clientes by remember {
         mutableStateOf(listOf<Cliente>())
     }
-    var mostrarConfirmacaoExclusao by remember { mutableStateOf(false) }
 
     LaunchedEffect(Dispatchers.IO) {
         clientes = clienteApi.listarTodos().await()
@@ -76,7 +78,9 @@ fun Conteudo(paddingValues: PaddingValues){
             contentPadding = PaddingValues(bottom = 80.dp)
         ) {
             items(clientes){ cliente ->
-                CardCliente(cliente, mostrarConfirmacaoExclusao)
+                if (controleNavegacao != null) {
+                    CardCliente(cliente, clienteApi, controleNavegacao, paddingValues)
+                }
             }
         }
     }
@@ -85,9 +89,13 @@ fun Conteudo(paddingValues: PaddingValues){
 @Composable
 private fun CardCliente(
     cliente: Cliente,
-    mostrarConfirmacaoExclusao: Boolean
+    clienteApi: ClienteService,
+    controleNavegacao: NavHostController,
+    paddingValues: PaddingValues
 ) {
-    var mostrarConfirmacaoExclusao1 = mostrarConfirmacaoExclusao
+
+    var mostrarConfirmacaoExclusao by remember { mutableStateOf(false) }
+
     Card(
         modifier = Modifier
             .padding(
@@ -110,7 +118,7 @@ private fun CardCliente(
             }
             IconButton(
                 onClick = {
-                    mostrarConfirmacaoExclusao1 = true
+                    mostrarConfirmacaoExclusao = true
                 }
             ) {
                 Icon(
@@ -119,14 +127,33 @@ private fun CardCliente(
                 )
             }
         }
-        if (mostrarConfirmacaoExclusao1) {
+        if (mostrarConfirmacaoExclusao) {
             AlertDialog(
                 onDismissRequest = {
-                    mostrarConfirmacaoExclusao1 = false
+                    mostrarConfirmacaoExclusao = false
                 },
-                confirmButton = {},
+                confirmButton = {
+                    TextButton(
+                        onClick = {
+                            GlobalScope.launch(Dispatchers.IO) {
+                                val excluirCliente = clienteApi
+                                    .excluir(cliente)
+                                mostrarConfirmacaoExclusao = true
+                            }
+                            controleNavegacao!!.navigate("conteudo")
+                        }
+                    ) {
+                        Text(text = "Sim")
+                    }
+                },
                 dismissButton = {
-                    mostrarConfirmacaoExclusao1 = false
+                    TextButton(
+                        onClick = {
+                            mostrarConfirmacaoExclusao = false
+                        }
+                    ) {
+                        Text(text = "Cancelar")
+                    }
                 },
                 title = {
                     Text(text = "Exclusão do cliente")
@@ -149,6 +176,6 @@ private fun CardCliente(
 @Composable
 private fun ConteudoPreview(){
     ClientesAppDSATheme {
-        Conteudo(PaddingValues(16.dp))
+        Conteudo(PaddingValues(16.dp), controleNavegacao = null)
     }
 }
