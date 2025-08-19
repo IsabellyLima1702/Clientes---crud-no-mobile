@@ -15,9 +15,14 @@ import androidx.compose.foundation.lazy.items
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Delete
 import androidx.compose.material.icons.filled.Person
+import androidx.compose.material.icons.filled.Warning
+import androidx.compose.material3.AlertDialog
+import androidx.compose.material3.Button
 import androidx.compose.material3.Card
 import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
 import androidx.compose.material3.Text
+import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
@@ -42,6 +47,7 @@ fun Conteudo(paddingValues: PaddingValues){
     var clientes by remember {
         mutableStateOf(listOf<Cliente>())
     }
+    var mostrarConfirmacaoExclusao by remember { mutableStateOf(false) }
 
     LaunchedEffect(Dispatchers.IO) {
         clientes = clienteApi.listarTodos().await()
@@ -66,35 +72,75 @@ fun Conteudo(paddingValues: PaddingValues){
                 text = "Lista de Clientes"
             )
         }
-        LazyColumn {
+        LazyColumn(
+            contentPadding = PaddingValues(bottom = 80.dp)
+        ) {
             items(clientes){ cliente ->
-                Card(
-                    modifier = Modifier
-                        .padding(
-                            start = 8.dp,
-                            end = 8.dp,
-                            bottom = 8.dp
-                        )
-                        .fillMaxWidth()
-                        .height(80.dp)
-                ) {
-                    Row (
-                        modifier = Modifier
-                            .padding(8.dp)
-                            .fillMaxSize(),
-                        horizontalArrangement = Arrangement.SpaceBetween
-                    ){
-                        Column {
-                            Text(text = cliente.nome)
-                            Text(text = cliente.email)
-                        }
-                        Icon(
-                            imageVector = Icons.Default.Delete,
-                            contentDescription = "Delete"
-                        )
-                    }
-                }
+                CardCliente(cliente, mostrarConfirmacaoExclusao)
             }
+        }
+    }
+}
+
+@Composable
+private fun CardCliente(
+    cliente: Cliente,
+    mostrarConfirmacaoExclusao: Boolean
+) {
+    var mostrarConfirmacaoExclusao1 = mostrarConfirmacaoExclusao
+    Card(
+        modifier = Modifier
+            .padding(
+                start = 8.dp,
+                end = 8.dp,
+                bottom = 8.dp
+            )
+            .fillMaxWidth()
+            .height(80.dp)
+    ) {
+        Row(
+            modifier = Modifier
+                .padding(8.dp)
+                .fillMaxSize(),
+            horizontalArrangement = Arrangement.SpaceBetween
+        ) {
+            Column {
+                Text(text = cliente.nome)
+                Text(text = cliente.email)
+            }
+            IconButton(
+                onClick = {
+                    mostrarConfirmacaoExclusao1 = true
+                }
+            ) {
+                Icon(
+                    imageVector = Icons.Default.Delete,
+                    contentDescription = "Delete"
+                )
+            }
+        }
+        if (mostrarConfirmacaoExclusao1) {
+            AlertDialog(
+                onDismissRequest = {
+                    mostrarConfirmacaoExclusao1 = false
+                },
+                confirmButton = {},
+                dismissButton = {
+                    mostrarConfirmacaoExclusao1 = false
+                },
+                title = {
+                    Text(text = "Exclusão do cliente")
+                },
+                text = {
+                    Text(text = "Confirmar a exclusào do cliente abaixo?\n\n${cliente.nome}")
+                },
+                icon = {
+                    Icon(
+                        imageVector = Icons.Default.Warning,
+                        contentDescription = "Cuidado"
+                    )
+                }
+            )
         }
     }
 }

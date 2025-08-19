@@ -15,12 +15,14 @@ import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Info
 import androidx.compose.material.icons.filled.Person
+import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Button
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
+import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -50,10 +52,13 @@ fun ClienteForm(padding: PaddingValues, controleNavegacao: NavHostController?) {
     var isNomeError by remember { mutableStateOf(false) }
     var isEmailError by remember { mutableStateOf(false) }
 
+    //Variável determina se a mensagem deve aparecer
+    var mostrarMensagemSucesso by remember { mutableStateOf(false) }
+
     fun validar(): Boolean{
         isNomeError = nomeCliente.length < 3
         isEmailError = !Patterns.EMAIL_ADDRESS.matcher(emailCliente).matches()
-        return isNomeError && !isEmailError
+        return !isNomeError && !isEmailError
     }
 
     //Criar uma instância da conexão com a API
@@ -164,9 +169,8 @@ fun ClienteForm(padding: PaddingValues, controleNavegacao: NavHostController?) {
                             val clienteNovo = clienteApi
                                 .cadastrarCliente(cliente)
                                 .await()
-                            println("**********$clienteNovo")
+                            mostrarMensagemSucesso = true
                         }
-                        controleNavegacao!!.navigate("conteudo")
                     } else {
                         println("**********Dados incorretos")
                     }
@@ -179,6 +183,39 @@ fun ClienteForm(padding: PaddingValues, controleNavegacao: NavHostController?) {
                     text =  "Gravar cliente"
                 )
             }
+        }
+        if (mostrarMensagemSucesso){
+            AlertDialog(
+                onDismissRequest = {
+                    mostrarMensagemSucesso = false
+                    nomeCliente = ""
+                    emailCliente = ""
+                },
+                title = {
+                    Text(text = "Sucesso")
+                },
+                text = {
+                    Text(text = "Cliente $nomeCliente gravado ocm sucesso!\nDeseja cadastrar outro cliente?")
+                },
+                confirmButton = {
+                    Button(
+                        onClick = {
+                            nomeCliente = ""
+                            emailCliente = ""
+                            mostrarMensagemSucesso = false
+                        }
+                    ) {
+                        Text(text = "Sim")
+                    }
+                },
+                dismissButton = {
+                    TextButton(
+                        onClick = {}
+                    ) {
+                        Text(text = "Não")
+                    }
+                }
+            )
         }
     }
 }
