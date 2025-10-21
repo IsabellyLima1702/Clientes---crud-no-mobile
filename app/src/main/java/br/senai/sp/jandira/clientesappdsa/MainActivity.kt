@@ -12,10 +12,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.tooling.preview.Preview
-import br.senai.sp.jandira.clientesappdsa.model.Cliente
-import br.senai.sp.jandira.clientesappdsa.screens.cliente.ListaDeClientes
 import br.senai.sp.jandira.clientesappdsa.service.Conexao
-import br.senai.sp.jandira.clientesappdsa.ui.theme.ClientesAppDSATheme
 import kotlinx.coroutines.Dispatchers
 import retrofit2.Call
 import retrofit2.Callback
@@ -27,9 +24,7 @@ class MainActivity : ComponentActivity() {
         super.onCreate(savedInstanceState)
         enableEdgeToEdge()
         setContent {
-            ClientesAppDSATheme {
 
-                ListaDeClientes()
 
 //                val cliente = Cliente(
 //                    id = null,
@@ -56,5 +51,4 @@ class MainActivity : ComponentActivity() {
             }
         }
     }
-}
 
